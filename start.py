@@ -22,12 +22,16 @@ try:
 except Exception as e:
 	docker_version = '1.21'
 
-try:
-	customer_id = os.environ['CUSTOMER-ID']
-	shared_key  = os.environ['CUSTOMER-KEY']
-except Exception as e:
-	print(e)
-	sys.exit(1)
+if(stats_writer == 'oms'):
+	try:
+		customer_id = os.environ['CUSTOMER-ID']
+		shared_key  = os.environ['CUSTOMER-KEY']
+	except Exception as e:
+		print(e)
+		sys.exit(1)
+else:
+	customer_id = ''
+	shared_key  = ''
 
 # The log type is the name of the event that is being submitted
 
