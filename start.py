@@ -13,19 +13,19 @@ import requests
 
 #config
 try:
-	stats_writer = os.environ['DOCKER-STATS-WRITER']
+	stats_writer = os.environ['DOCKER_STATS_WRITER']
 except Exception as e:
 	stats_writer = 'oms'
 
 try:
-	docker_version = os.environ['DOCKER-VERSION']
+	docker_version = os.environ['DOCKER_VERSION']
 except Exception as e:
 	docker_version = '1.21'
 
 if(stats_writer == 'oms'):
 	try:
-		customer_id = os.environ['CUSTOMER-ID']
-		shared_key  = os.environ['CUSTOMER-KEY']
+		customer_id = os.environ['CUSTOMER_ID']
+		shared_key  = os.environ['CUSTOMER_KEY']
 	except Exception as e:
 		print(e)
 		sys.exit(1)
