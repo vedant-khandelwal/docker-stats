@@ -125,4 +125,4 @@ computer_name = str.strip(file.read())
 
 while True:
 	collect_stats()
-	time.sleep(20)
+	time.sleep(60)
