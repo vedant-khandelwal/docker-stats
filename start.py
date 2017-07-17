@@ -82,6 +82,7 @@ def collect_stats():
 					'time': inspect_time,
 					'log_type': 'dockerstats',
 					'computer_name': computer_name,
+					'image': container.image,
 					'container': container.name,
 					'cpu_usage': cpuPercent,
 					'mem_usage': docker_stats['memory_stats']['usage']
