@@ -87,7 +87,7 @@ def collect_stats():
 					'time': inspect_time,
 					'log_type': 'dockerstats',
 					'computer_name': computer_name,
-					'image': container.image,
+					'image': container.image.attrs['RepoTags'][0],
 					'container': container.name,
 					'installation_id': installation_id,
 					'cpu_usage': cpuPercent,
