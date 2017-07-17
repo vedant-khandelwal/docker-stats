@@ -22,6 +22,11 @@ try:
 except Exception as e:
 	docker_version = '1.21'
 
+try:
+	installation_id = os.environ['INSTALLATION_ID']
+except Exception as e:
+	installation_id = 'installation-id'
+
 # The log type is the name of the event that is being submitted
 
 
@@ -84,6 +89,7 @@ def collect_stats():
 					'computer_name': computer_name,
 					'image': container.image,
 					'container': container.name,
+					'installation_id': installation_id,
 					'cpu_usage': cpuPercent,
 					'mem_usage': docker_stats['memory_stats']['usage']
 				}
