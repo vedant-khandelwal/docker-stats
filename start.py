@@ -15,23 +15,12 @@ import requests
 try:
 	stats_writer = os.environ['DOCKER_STATS_WRITER']
 except Exception as e:
-	stats_writer = 'oms'
+	stats_writer = 'loggly'
 
 try:
 	docker_version = os.environ['DOCKER_VERSION']
 except Exception as e:
 	docker_version = '1.21'
-
-if(stats_writer == 'oms'):
-	try:
-		customer_id = os.environ['CUSTOMER_ID']
-		shared_key  = os.environ['CUSTOMER_KEY']
-	except Exception as e:
-		print(e)
-		sys.exit(1)
-else:
-	customer_id = ''
-	shared_key  = ''
 
 # The log type is the name of the event that is being submitted
 
@@ -42,32 +31,13 @@ docker_client  = docker.DockerClient(base_url=docker_url, version=docker_version
 
 old_stats      = {}
 
-# Build the API signature
-def build_signature(customer_id, shared_key, date, content_length, method, content_type, resource):
-    x_headers = 'x-ms-date:' + date
-    string_to_hash = method + "\n" + str(content_length) + "\n" + content_type + "\n" + x_headers + "\n" + resource
-    bytes_to_hash = bytes(string_to_hash).encode('utf-8')  
-    decoded_key = base64.b64decode(shared_key)
-    hmac_str = hmac.new(decoded_key, bytes_to_hash, digestmod=hashlib.sha256).digest()
-    encoded_hash = base64.b64encode(hmac_str)
-    authorization = "SharedKey {}:{}".format(customer_id,encoded_hash)
-    return authorization
-
 # Build and send a request to the POST API
-def post_data(customer_id, shared_key, body, time_str):
-    method   = 'POST'
-    resource = '/api/logs'
-    log_type = 'dockerstats'
-    content_type = 'application/json'
-    content_length = len(body)
-    signature = build_signature(customer_id, shared_key, time_str, content_length, method, content_type, resource)
-    uri = 'https://' + customer_id + '.ods.opinsights.azure.com' + resource + '?api-version=2016-04-01'
+def post_data(body):
+    content_type = 'text/plain'
+    uri = os.environ['LOGGLY_URL']
 
     headers = {
-        'content-type': content_type,
-        'Authorization': signature,
-        'Log-Type': log_type,
-        'x-ms-date': time_str
+        'content-type': content_type
     }
 
     response = requests.post(uri, data=body, headers=headers)
@@ -109,16 +79,14 @@ def collect_stats():
 			if(container.name in old_stats):
 				cpuPercent = calculate_cpu_percentage(old_stats[container.name], docker_stats)
 				stats_obj = {
+					'time': inspect_time,
+					'log_type': 'dockerstats',
 					'computer_name': computer_name,
 					'container': container.name,
 					'cpu_usage': cpuPercent,
 					'mem_usage': docker_stats['memory_stats']['usage']
 				}
-				if(stats_writer == 'oms'):
-					post_data(customer_id, shared_key, json.dumps(stats_obj), inspect_time)
-				else:
-					stats_obj['time'] = inspect_time
-					print(stats_obj)
+				post_data(json.dumps(stats_obj))
 			old_stats[container.name] = docker_stats
 	except Exception as e:
 		print(e)
