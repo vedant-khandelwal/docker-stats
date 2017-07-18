@@ -83,11 +83,14 @@ def collect_stats():
 			cpuPercent   = 0.0
 			if(container.name in old_stats):
 				cpuPercent = calculate_cpu_percentage(old_stats[container.name], docker_stats)
+				container_image = 'unknown'
+				if len(container.image.attrs['RepoTags']) > 0:
+					container_image = container.image.attrs['RepoTags'][0]
 				stats_obj = {
 					'time': inspect_time,
 					'log_type': 'dockerstats',
 					'computer_name': computer_name,
-					'image': container.image.attrs['RepoTags'][0],
+					'image': container_image,
 					'container': container.name,
 					'installation_id': installation_id,
 					'cpu_usage': cpuPercent,
